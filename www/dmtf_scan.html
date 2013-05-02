@@ -3,8 +3,8 @@
 <head>
 	<title>DMTF Wireless Scan</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<script type="text/javascript" src="/lib/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" src="/lib/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="lib/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="lib/jquery.sparkline.min.js"></script>
 	<script >
 		$(document).ready(function() {
 	    var myScan;
@@ -22,7 +22,7 @@
 			  }
 			}
 			//  Read the JSON file into an array
-	    $.getJSON('/log/wifiscan.json', function(data) {
+	    $.getJSON('log/wifiscan.json', function(data) {
         myScan = data.items;
         var mySignal = [];
         var n = 0;

@@ -1,0 +1,58 @@
+<html>
+<head>
+<head>
+	<title>DMTF Wireless Scan</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script type="text/javascript" src="/lib/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="/lib/jquery.sparkline.min.js"></script>
+	<script >
+		$(document).ready(function() {
+	    var myScan;
+	    // SortByMac sorts the array of records by mac address and then by ScanDate
+			function SortByMac(a, b){
+			  var a_bssid = a.BSSID;
+			  var b_bssid = b.BSSID;
+			  var a_date = a.ScanDate;
+			  var b_date = b.ScanDate;
+			  if ( a_bssid < b_bssid) {      	return -1;
+			  } else if (a_bssid > b_bssid) { return  1;
+			  } else if (a_date < b_date) { 	return -1;
+			  } else if (a_date > b_date) {  	return  1;
+			  } else {              			  	return  	0;
+			  }
+			}
+			//  Read the JSON file into an array
+	    $.getJSON('/log/wifiscan.json', function(data) {
+        myScan = data.items;
+        var mySignal = [];
+        var n = 0;
+        // Sort the array
+        myScan.sort(SortByMac);
+        // Iterate through the array
+        $.each(myScan, function(i) {
+        	if (!mySignal[n]) { mySignal[n] = [];}
+        	//  not sure if this is right... adding 95 to dBm to get RSSI?  help?
+        	rssi_signal = parseInt(myScan[i].Signal) + 95;
+        	//  add the signals for each mac address to an array
+    	  	mySignal[n].push(rssi_signal);
+        	if ( i > 0 ) {
+        		//  Once we have collected all signals for a mac address, write the details and call sparkline.
+	        	if (myScan[i].BSSID != myScan[i - 1].BSSID) {
+	        		$("#wlog").append('<div class="mac">'+myScan[i].BSSID+"  "+myScan[i].SSID+"  "+myScan[i].Channel+"  "+myScan[i].Encryption+'</div>');
+      		    sparkid = ".inlinebar"+n;
+		        	$("#wlog").append('<span class="inlinebar'+n+'">'+mySignal[n]+'</span>');
+   			      $(sparkid).sparkline(mySignal[n], {type: 'bar', barColor: 'blue', width: '200px'} );
+   			   		n++;
+	        	}
+	        }
+				});
+	    });
+		});
+	</script>
+</head>
+</head>
+<body>
+<div id="wlog"></div>
+
+</body>
+</html>

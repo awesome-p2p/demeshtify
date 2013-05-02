@@ -44,7 +44,11 @@
 					text: "" + myScan[i].BSSID+"  "+myScan[i].SSID+"  "+myScan[i].Channel+"  "+myScan[i].Encryption
 				}));
       		    sparkid = ".inlinebar"+n;
-		        	$("#wlog").append('<span class="inlinebar'+n+'">'+mySignal[n]+'</span>');
+				$("#wlog")
+				.append($('<span/>', {
+					'class': 'inlinebar'+n,
+					text: "" + mySignal[n]
+				}));
    			      $(sparkid).sparkline(mySignal[n], {type: 'bar', barColor: 'blue', width: '200px'} );
    			   		n++;
 	        	}

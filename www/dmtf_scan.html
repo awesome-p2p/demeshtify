@@ -43,17 +43,17 @@
 					'class': 'mac',
 					text: "" + myScan[i].BSSID+"  "+myScan[i].SSID+"  "+myScan[i].Channel+"  "+myScan[i].Encryption
 				}));
-      		    sparkid = ".inlinebar"+n;
 				$("#wlog")
 				.append($('<span/>', {
-					'class': 'inlinebar'+n,
+					'class': 'sparklines inlinebar'+n,
 					text: "" + mySignal[n]
 				}));
-   			      $(sparkid).sparkline(mySignal[n], {type: 'bar', barColor: 'blue', width: '200px'} );
+
    			   		n++;
 	        	}
 	        }
 				});
+		$('.sparklines').sparkline('html', {type: 'bar', barColor: 'blue', width: '200px'} );
 	    });
 		});
 	</script>

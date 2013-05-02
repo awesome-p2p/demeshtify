@@ -38,7 +38,11 @@
         	if ( i > 0 ) {
         		//  Once we have collected all signals for a mac address, write the details and call sparkline.
 	        	if (myScan[i].BSSID != myScan[i - 1].BSSID) {
-	        		$("#wlog").append('<div class="mac">'+myScan[i].BSSID+"  "+myScan[i].SSID+"  "+myScan[i].Channel+"  "+myScan[i].Encryption+'</div>');
+				$("#wlog")
+				.append($('<div/>', {
+					'class': 'mac',
+					text: "" + myScan[i].BSSID+"  "+myScan[i].SSID+"  "+myScan[i].Channel+"  "+myScan[i].Encryption
+				}));
       		    sparkid = ".inlinebar"+n;
 		        	$("#wlog").append('<span class="inlinebar'+n+'">'+mySignal[n]+'</span>');
    			      $(sparkid).sparkline(mySignal[n], {type: 'bar', barColor: 'blue', width: '200px'} );

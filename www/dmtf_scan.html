@@ -3,8 +3,8 @@
 <head>
 	<title>DMTF Wireless Scan</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<script type="text/javascript" src="/lib/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" src="/lib/jquery.sparkline.min.js"></script>
+	<script type="text/javascript" src="lib/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="lib/jquery.sparkline.min.js"></script>
 	<script >
 		$(document).ready(function() {
 	    var myScan;
@@ -22,7 +22,7 @@
 			  }
 			}
 			//  Read the JSON file into an array
-	    $.getJSON('/log/wifiscan.json', function(data) {
+	    $.getJSON('log/wifiscan.json', function(data) {
         myScan = data.items;
         var mySignal = [];
         var n = 0;
@@ -38,14 +38,22 @@
         	if ( i > 0 ) {
         		//  Once we have collected all signals for a mac address, write the details and call sparkline.
 	        	if (myScan[i].BSSID != myScan[i - 1].BSSID) {
-	        		$("#wlog").append('<div class="mac">'+myScan[i].BSSID+"  "+myScan[i].SSID+"  "+myScan[i].Channel+"  "+myScan[i].Encryption+'</div>');
-      		    sparkid = ".inlinebar"+n;
-		        	$("#wlog").append('<span class="inlinebar'+n+'">'+mySignal[n]+'</span>');
-   			      $(sparkid).sparkline(mySignal[n], {type: 'bar', barColor: 'blue', width: '200px'} );
+				$("#wlog")
+				.append($('<div/>', {
+					'class': 'mac',
+					text: "" + myScan[i].BSSID+"  "+myScan[i].SSID+"  "+myScan[i].Channel+"  "+myScan[i].Encryption
+				}));
+				$("#wlog")
+				.append($('<span/>', {
+					'class': 'sparklines inlinebar'+n,
+					text: "" + mySignal[n]
+				}));
+
    			   		n++;
 	        	}
 	        }
 				});
+		$('.sparklines').sparkline('html', {type: 'bar', barColor: 'blue', width: '200px'} );
 	    });
 		});
 	</script>

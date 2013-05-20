@@ -1,40 +1,60 @@
 #!/usr/bin/lua
 
-local max_lines = 300
+local max_lines = 25
+local lstart = 0
+local dev = "wlan0"
 local log_file = "/www/log/wifiscan.json"
+local log_tmp = "/www/log/wifiscan.tmp"
 
 local iw = require "iwinfo"
-local dev = "wlan0"
-
 local t = assert(iw.type(dev), "Not a wireless device")
-local f = assert(io.open(log_file, "a"), "Cannot open")
+                   
+local fi = assert(io.open(log_file, "r"), "Cannot open log for reading")
+local fo = assert(io.open(log_tmp, "w"), "Cannot open temporary file")  
 
-local n, cell
-for n, cell in ipairs(iw[t].scanlist(dev)) do
-    f:write(string.format(
-        "{\"BSSID\": %q,\"SSID\": %q,\"Mode\": %q,\"Channel\": \"%d\",\"Signal\": \"%d\",\"Quality\": \"%d\", \"Max_Quality\": \"%d\",\"Encryption\": %q,\"ScanDate\": %q },\n",
-        cell.bssid, cell.ssid, cell.mode, cell.channel,
-        cell.signal, cell.quality, cell.quality_max,
-        cell.encryption.description, os.date()
-    ))
-end
-
-f:close()
 -- Count the number of lines
-local lines = 0
+local lc = 0
 local ll = assert(io.lines(log_file), "Can't open log")
 for _ in ll do
-	lines=lines+1
+	lc = lc + 1
 end
 
--- Reduce filesize by removing lines from the beginning of file to reduce to max_lines
-if lines >= max_lines then
-	local ldel = lines - max_lines
-    -- this constructs a sed command to delete the first ldel number of lines from the log file
-	local sed_command = "sed -i '1,"..ldel.."d' "..log_file
-    os.execute(sed_command)
+if (lc > max_lines) then
+	lstart = lc - max_lines - 1
+  fo:write("\{ \"items\": \[\n")
+else
+  lstart = 0
 end
---print("Number of lines is:", lines)
 
+local i = 1
+for line in fi:lines() do 
+	if ( (i > lstart) and (i < lc) ) then
+ 		fo:write(string.format("%s\n", line)) 
+	end
+	i = i + 1
+end
 
-os.exit(0)
+local n, cell
+local wscan = iw[t].scanlist(dev)
+local last = table.getn(wscan)  -- calculate size of the array
+for n, cell in ipairs(wscan) do
+    if (n < last) then
+      fo:write(string.format(
+          "{\"BSSID\": %q,\"SSID\": %q,\"Mode\": %q,\"Channel\": \"%d\",\"Signal\": \"%d\",\"Quality\": \"%d\", \"Max_Quality\": \"%d\",\"Encryption\": %q,\"ScanDate\": %q },\n",
+          cell.bssid, cell.ssid, cell.mode, cell.channel,
+          cell.signal, cell.quality, cell.quality_max,
+          cell.encryption.description, os.date()
+      ))
+    else
+      fo:write(string.format(
+          "{\"BSSID\": %q,\"SSID\": %q,\"Mode\": %q,\"Channel\": \"%d\",\"Signal\": \"%d\",\"Quality\": \"%d\", \"Max_Quality\": \"%d\",\"Encryption\": %q,\"ScanDate\": %q }\n",
+          cell.bssid, cell.ssid, cell.mode, cell.channel,
+          cell.signal, cell.quality, cell.quality_max,
+          cell.encryption.description, os.date()
+      ))
+    end
+end
+fo:write("\]\}\n")
+fo:close()
+os.remove(log_file)
+os.rename(log_tmp, log_file)
